@@ -16,7 +16,7 @@ Performance is fundamental to vector database utility, directly impacting user e
 | Database | Query Latency (P99) | Throughput (QPS) | Indexing Speed | Recall Accuracy | Hardware Optimization |
 |----------|---------------------|------------------|----------------|-----------------|----------------------|
 | **Pinecone** | Variable: p2 <50ms, s1 >100ms | 10-150 QPS/pod, Serverless variable | Real-time updates | 91.5-99% (benchmark dependent) | Auto-managed, pod-type dependent |
-| **OpenSearch** | Variable | 16.34 QPS | Batch-optimized | 87.9% (VectorDBBench) | CPU/GPU acceleration |
+| **OpenSearch** | Highly variable: 10s+ (misconfigured) to <200ms (optimized) | 16.34 QPS (v2.x), 9.5x improvement in v3.0 | Batch-optimized, GPU-accelerated (v3.0) | 87.9% (VectorDBBench) | CPU standard, GPU acceleration (v3.0 with NVIDIA cuVS) |
 | **Algolia** | Single-digit ms | High (managed) | Real-time | High (proprietary) | Global CDN + compression |
 | **Marqo** | 72ms (V2) vs 172ms (V1) | 157.7 QPS (V2) | Fast (Vespa backend) | 97% (V2) vs 81% (V1) | GPU support |
 | **TypeSense** | Sub-50ms (lexical) | Moderate | Real-time | Competitive | Optional GPU |
@@ -44,6 +44,7 @@ Performance is fundamental to vector database utility, directly impacting user e
 
 **⚡ Fastest Indexing**
 - **SingleStore**: Fastest load times in benchmarks
+- **OpenSearch v3.0**: 9.3x faster with GPU acceleration
 - **Real-time leaders**: Pinecone, Algolia, TypeSense for immediate updates
 
 ---
@@ -60,7 +61,7 @@ Modern applications demand systems capable of handling billions of vectors while
 | Database | Data Volume Capacity | Concurrency Support | Architecture Model | Scaling Approach | Deployment Options | Consistency Model |
 |----------|---------------------|--------------------|--------------------|------------------|-------------------|-------------------|
 | **Pinecone** | Billions+ vectors | Variable (pod-dependent) | Serverless + Pod-based | Horizontal (pod scaling) + Serverless | Managed only | Eventually consistent |
-| **OpenSearch (k-NN)** | Billions+ (16k max dimensions) | High | Distributed cluster | Horizontal + Vertical | Managed + Self-hosted | Eventually consistent |
+| **OpenSearch (k-NN)** | Billions+ (16k max dimensions)* | High (with proper configuration) | Distributed cluster with v3.0 enhancements** | Horizontal + Vertical | Managed + Self-hosted | Eventually consistent |
 | **Algolia NeuralSearch** | Large-scale | High (managed) | Distributed + CDN | Horizontal (managed) | Managed only | Eventually consistent |
 | **Marqo** | Multi-billion | High | Distributed (Vespa backend) | Horizontal | Managed + Self-hosted | Eventually consistent |
 | **TypeSense** | Millions to billions | High | Distributed cluster | Horizontal | Managed + Self-hosted | Eventually consistent |
@@ -77,13 +78,15 @@ Modern applications demand systems capable of handling billions of vectors while
 
 **🔄 Distributed Systems**
 - **OpenSearch, Qdrant, Weaviate**: Traditional distributed architectures
+- **OpenSearch v3.0 Enhancements**: Reader/Writer separation for isolated workload scaling, remote-backed S3 storage for resilience
 - **Benefits**: Predictable performance, fine-grained control
-- **Trade-offs**: Operational complexity, capacity planning requirements
+- **Trade-offs**: Operational complexity, capacity planning requirements, significant tuning needed (especially OpenSearch)
 
 **🎯 Specialized Approaches**
 - **SingleStore**: Only database offering strong consistency (ACID compliance)
 - **Marqo**: Vespa backend transition for improved performance and control
 - **Algolia**: Global CDN integration for worldwide low latency
+- **OpenSearch v3.0**: Derived Source feature reduces storage by ~33% by eliminating redundant vector data
 
 ---
 
@@ -99,7 +102,7 @@ Efficient indexing algorithms are fundamental to fast similarity search. The cho
 | Database | HNSW | IVF | PQ | LSH | DiskANN | Auto Selection | Custom Algorithms |
 |----------|------|-----|----|----|---------|----------------|-------------------|
 | **Pinecone** | ✅ | ❌ | ❌ | ❌ | ✅ | ✅ (Adaptive by slab size) | Proprietary optimizations |
-| **OpenSearch** | ✅ | ✅ | ✅ | ❌ | ❌ | ❌ | Multiple engines (Faiss, Lucene) |
+| **OpenSearch** | ✅ | ✅ | ✅* | ❌ | ❌ | ❌ | Multiple engines (Faiss, Lucene, NMSLIB deprecated**) |
 | **Algolia** | ❓ | ❓ | ❓ | ❓ | ❌ | ✅ | NeuralHashing™ (proprietary) |
 | **Marqo** | ✅ | ❌ | ❌ | ❌ | ❌ | ❌ | Vespa-optimized HNSW |
 | **TypeSense** | ✅ | ❌ | ❌ | ❌ | ❌ | ❌ | Standard HNSW |
@@ -118,9 +121,10 @@ Efficient indexing algorithms are fundamental to fast similarity search. The cho
 - **Qdrant**: Filterable HNSW enabling efficient metadata filtering during graph traversal
 - **Weaviate**: HNSW with full CRUD operations support
 - **Marqo**: Vespa-optimized HNSW for high-performance scenarios
+- **OpenSearch**: Multiple engine support but requires manual configuration and tuning
 
 **📊 Multi-Algorithm Support**
-- **OpenSearch**: Most comprehensive with Faiss, Lucene engines
+- **OpenSearch**: Most comprehensive with Faiss, Lucene engines (requires Training API for IVF)
 - **SingleStore**: Strong IVF and PQ support with SQL integration
 
 ---
@@ -137,7 +141,7 @@ Advanced querying capabilities determine real-world applicability. The trend tow
 | Database | k-NN Search | Range Search | Distance Metrics | Metadata Filtering | Filtering Strategy | Hybrid Search |
 |----------|-------------|--------------|------------------|-------------------|-------------------|---------------|
 | **Pinecone** | ✅ | ✅ | Cosine, Euclidean, Dot Product | ✅ Advanced | Disk-based, efficient | ✅ Dense + Sparse |
-| **OpenSearch** | ✅ | ✅ | Cosine, Euclidean, L1, Hamming | ✅ Extensive | Pre/Post-filtering | ✅ BM25 + Vector |
+| **OpenSearch** | ✅ (Approximate & Exact*) | ✅ | Cosine, Euclidean, L1, Hamming | ✅ Extensive | Pre-filtering (exact), Post-filtering (ANN) | ✅ BM25 + Vector (Neural Sparse Search**) |
 | **Algolia** | ✅ | ✅ | Multiple (proprietary) | ✅ Rich faceting | Integrated filtering | ✅ NeuralSearch™ |
 | **Marqo** | ✅ | ✅ | Euclidean, Angular, Dot, Hamming | ✅ Query DSL | Pre-filtering | ✅ Multimodal |
 | **TypeSense** | ✅ | ✅ | Cosine (primary) | ✅ | Standard filtering | ✅ Rank Fusion |
@@ -150,17 +154,19 @@ Advanced querying capabilities determine real-world applicability. The trend tow
 **🔧 Advanced Filtering Strategies**
 - **Qdrant**: In-flight filtering during HNSW traversal (most efficient)
 - **SingleStore**: SQL-integrated filtering with complex predicates
+- **OpenSearch**: Different strategies for exact (pre-filtering) vs approximate (post-filtering) search
 - **Pinecone**: Disk-based metadata filtering for scalability
 
 **🔄 Hybrid Search Leaders**
 - **Algolia**: Native NeuralSearch™ combining keyword and vector
-- **OpenSearch**: Mature BM25 + vector score fusion
+- **OpenSearch**: Mature BM25 + vector score fusion with Neural Sparse Search option
 - **Pinecone**: Dense + sparse vector combination with tunable weighting
 
 **🎨 Specialized Capabilities**
 - **Marqo**: Multimodal search (text, image, cross-modal)
 - **TypeSense**: Rank Fusion with typo-tolerant lexical search
 - **Weaviate**: GraphQL queries with complex data traversal
+- **OpenSearch**: Score Script and Painless Extensions for custom scoring logic
 
 ---
 
@@ -176,7 +182,7 @@ Comprehensive data management capabilities are essential for production deployme
 | Database | Vectorization Options | CRUD Operations | APIs & SDKs | ML Integrations | Multi-tenancy | Security | Data Types |
 |----------|----------------------|----------------|-------------|-----------------|---------------|----------|------------|
 | **Pinecone** | External only | ✅ Full | ✅ Excellent | ✅ LangChain, LlamaIndex | ✅ Namespaces | ✅ Enterprise-grade | ✅ Rich metadata |
-| **OpenSearch** | External only | ✅ Full | ✅ Comprehensive | ✅ LangChain, LlamaIndex | ✅ Index-based | ✅ Full enterprise | ✅ JSON, all types |
+| **OpenSearch** | External only (requires index.knn: true) | ✅ Full | ✅ Comprehensive | ✅ LangChain, LlamaIndex | ✅ Index-based | ✅ Full enterprise (AWS IAM, fine-grained access) | ✅ JSON, all types |
 | **Algolia** | Built-in NeuralSearch™ | ✅ Full | ✅ Excellent | ✅ Limited AI-focused | ⚠️ Basic | ✅ Good | ✅ Rich faceted |
 | **Marqo** | ✅ Built-in inference | ✅ Full | ✅ Good | ✅ Custom models | ⚠️ Basic | ✅ Standard | ✅ Multimodal |
 | **TypeSense** | ✅ Built-in + External | ✅ Full | ✅ Good | ✅ OpenAI, Google PaLM | ⚠️ Collection-based | ✅ Standard | ✅ Rich metadata |
@@ -190,16 +196,18 @@ Comprehensive data management capabilities are essential for production deployme
 - **Weaviate**: Most flexible modular system (OpenAI, Cohere, Hugging Face)
 - **TypeSense**: Multi-service integration (OpenAI, Google PaLM, GCP Vertex AI)
 - **Marqo**: Proprietary inference engine with multimodal capabilities
+- **OpenSearch**: Requires external vectorization but integrates well with ML pipelines
 
 **🔒 Enterprise Security Champions**
 - **SingleStore**: Full RDBMS security suite (RBAC, auditing, encryption)
-- **OpenSearch**: Comprehensive open-source security framework
+- **OpenSearch**: Comprehensive security with AWS integration (SOC, HIPAA, PCI DSS compliance)
 - **Pinecone**: Enterprise-grade managed security
 
 **👥 Multi-tenancy Excellence**
 - **Pinecone**: Namespaces scaling to millions with minimal overhead
 - **Qdrant**: Payload-based isolation with high performance
 - **SingleStore**: Database-level isolation with full SQL capabilities
+- **OpenSearch**: Index-based isolation with fine-grained access control
 
 ---
 
@@ -210,12 +218,12 @@ Comprehensive data management capabilities are essential for production deployme
 ### Cost Overview
 Understanding financial implications requires analyzing not just subscription costs, but infrastructure, operational overhead, hidden fees, and long-term scaling economics.
 
-### Cost Model Comparison Matrix 
+### Cost Model Comparison Matrix
 
 | Database | Pricing Model | Starting Cost | Infrastructure Costs | Operational Costs | Cost Escalation Risk | TCO Rating |
 |----------|---------------|---------------|---------------------|-------------------|---------------------|------------|
 | **Pinecone** | Usage-based (Serverless/Pod) | Free tier → $70+/month | ✅ Bundled | 🟢 Low (managed) | 🔴 Very high at scale (>10M reads/month) | 💰💰💰 |
-| **OpenSearch** | Open-source | Free | 💸 Direct hosting | 🔴 High (complex) | ⚠️ Support & expertise | 💰💰 |
+| **OpenSearch** | Open-source / AWS managed | Free (OSS) / $17.28+/month (AWS)* | 💸 Direct hosting or AWS pricing | 🔴 Very high (complex tuning, expertise required) | ⚠️ Support, expertise, scaling complexity | 💰💰💰** |
 | **Algolia** | Usage-based | Free tier → $500+/month | ✅ Bundled | 🟢 Low (managed) | 🔴 Very high scaling | 💰💰💰💰 |
 | **Marqo** | Hybrid | Free (OSS) / Cloud pricing | 🔄 Mixed | 🟡 Medium | 🟢 Moderate | 💰💰 |
 | **TypeSense** | Hybrid | Free (OSS) / $20+/month | 🔄 Mixed | 🟡 Medium | 🟢 Low | 💰 |
@@ -223,20 +231,24 @@ Understanding financial implications requires analyzing not just subscription co
 | **Weaviate** | Hybrid | Free (OSS) / $25+/month | 🔄 Mixed | 🟡 Medium | ⚠️ Scaling complexity | 💰💰 |
 | **SingleStore** | Resource-based | Enterprise pricing | 🔄 Mixed | 🟡 Medium (SQL expertise) | 🟢 Consolidation savings | 💰💰💰 |
 
+*AWS OpenSearch: t3.small.search ($17.28/month) to r7g.xlarge ($302.40/month) + storage costs
+**True TCO higher due to operational complexity and expertise requirements
+
 ### 💡 Cost Strategy Recommendations
 
 **🚀 Best for Startups (< 1M vectors)**
 - **TypeSense**: Most cost-effective overall
 - **Qdrant Free Tier**: Excellent performance at no cost
-- **Pinecone Free Tier**: Easiest setup for prototyping
+- **OpenSearch Self-hosted**: If expertise available (steep learning curve)
 
 **🏢 Best for Scale (100M+ vectors)**
 - **Self-hosted Qdrant**: Best performance per dollar
-- **Self-hosted OpenSearch**: Long-term cost control
+- **AWS OpenSearch with Reserved Instances**: Up to 48% savings on 3-year commitment
 - **Pod-based Pinecone**: More predictable than serverless at scale
 
 **⚡ Best for Rapid Deployment**
 - **Pinecone**: Fastest to production despite higher costs
+- **AWS OpenSearch Serverless**: OCU-based pricing, no management overhead
 - **TypeSense Cloud**: Best balance of speed and affordability
 - **Qdrant Cloud**: Good performance with reasonable pricing
 
@@ -251,7 +263,7 @@ For detailed technical analysis, implementation guides, and specific use case re
 | Database | Review Link | Key Strengths | Best For | Cost Considerations |
 |----------|-------------|---------------|----------|-------------------|
 | **🌲 Pinecone** | [Complete Analysis →](./databases/PINECONE_REVIEW.md) | Serverless architecture, managed scaling, strong ecosystem | Production apps requiring minimal ops overhead | ⚠️ Watch for cost escalation >10M reads/month |
-| **🔍 OpenSearch** | [Complete Analysis →](./databases/OPENSEARCH_REVIEW.md) | Open source, flexible deployment, extensive features | Enterprise deployments with customization needs | Predictable costs with operational overhead |
+| **🔍 OpenSearch** | [Complete Analysis →](./databases/OPENSEARCH_REVIEW.md) | Open source, unified platform, AWS integration, v3.0 performance | Enterprise with existing ElasticSearch/OpenSearch expertise | High operational overhead, requires significant tuning |
 | **⚡ Algolia** | [Complete Analysis →](./databases/ALGOLIA_REVIEW.md) | Global CDN, hybrid search, developer experience | Search-heavy applications with global users | Very expensive at scale |
 | **🎯 Marqo** | [Complete Analysis →](./databases/MARQO_REVIEW.md) | Multimodal capabilities, built-in ML inference | AI applications requiring image/text search | Moderate scaling costs |
 | **🚀 TypeSense** | [Complete Analysis →](./databases/TYPESENSE_REVIEW.md) | Cost-effective, typo-tolerant search, easy setup | Small to medium scale with budget constraints | Best cost-performance ratio |

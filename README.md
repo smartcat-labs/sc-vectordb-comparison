@@ -31,7 +31,7 @@ Performance is fundamental to vector database utility, directly impacting user e
 | **Pinecone** | p2: <50ms, s1: >100ms | 10-150 QPS/pod | Real-time updates | 91.5-99% | Billions+ | Auto-managed, pod-dependent |
 | **Algolia** | Keyword: <10ms, Hybrid: <20ms | Variable by search type | Real-time | High (proprietary) | Large-scale | Global CDN + compression | 
 | **SingleStore** | Competitive | 2nd best (benchANT) | Fastest load times | 88.8-91.5% | Petabyte | SQL + vector optimization | 
-| **Marqo** | 72ms (V2) | 157 QPS | Fast (Vespa backend) | 97% (V2) | Multi-billion | GPU support | 
+| **Marqo** | 72.11ms P50, 140ms P99 (V2) | 157.7 QPS | Fast (Vespa backend) | 97% (V2) | Multi-billion | GPU support | 
 | **TypeSense** | <50ms (lexical) | Moderate | Real-time | Competitive | Millions-Billions | Optional GPU | 
 | **OpenSearch** | 10s+ to <200ms* | 16-147 QPS | 9.5x faster (v3.0 GPU) | 87.9% | Billions+ | GPU acceleration (v3.0) | 
 | **Weaviate** | <200ms | 15 QPS | Moderate | 80.6% | Billions+ | Modular processing |
@@ -48,7 +48,7 @@ Performance is fundamental to vector database utility, directly impacting user e
 
 **🚀 Highest Throughput Leaders**
 - **Qdrant**: 626.5 QPS with excellent recall
-- **Marqo V2**: 157.7 QPS with significant improvements over V1
+- **Marqo V2**: 157.7 QPS with significant improvements over V1 (147.8 QPS)
 - **Pinecone**: 10-150 QPS per pod (requires multiple pods for high throughput)
 
 **📈 Best Recall Accuracy**
@@ -198,7 +198,7 @@ Comprehensive data management capabilities are essential for production deployme
 | **Pinecone** | External only | ✅ Full | ✅ Excellent | ✅ LangChain, LlamaIndex | ✅ Namespaces | ✅ Enterprise-grade | ✅ Rich metadata |
 | **OpenSearch** | External only (requires index.knn: true) | ✅ Full | ✅ Comprehensive | ✅ LangChain, LlamaIndex | ✅ Index-based | ✅ Full enterprise (AWS IAM, fine-grained access) | ✅ JSON, all types |
 | **Algolia** | Built-in NeuralSearch™ | ✅ Full | ✅ Excellent | ✅ AI-driven features (Synonyms, Re-Ranking) | ✅ Secure data isolation per application | ✅ Good | ✅ Rich faceted |
-| **Marqo** | ✅ Built-in inference | ✅ Full | ✅ Good | ✅ Custom models | ⚠️ Basic | ✅ Standard | ✅ Multimodal |
+| **Marqo** | ✅ Built-in inference, Marqtune for fine-tuning | ✅ Full | ✅ Good | ✅ Custom models | ⚠️ Basic | ✅ Standard | ✅ Multimodal |
 | **TypeSense** | ✅ Built-in + External | ✅ Full | ✅ Good | ✅ OpenAI, Google PaLM | ⚠️ Collection-based | ✅ Standard | ✅ Rich metadata |
 | **Qdrant** | External only | ✅ Full with real-time | ✅ Excellent | ✅ LangChain, custom | ✅ Payload-based | ✅ Enterprise-ready | ✅ JSON, geo, nested |
 | **Weaviate** | ✅ Modular vectorizers | ✅ Full CRUD | ✅ GraphQL + REST | ✅ Extensive modules | ⚠️ Schema-based | ✅ Good | ✅ Rich schema |
@@ -209,7 +209,7 @@ Comprehensive data management capabilities are essential for production deployme
 **🔄 Built-in Vectorization Leaders**
 - **Weaviate**: Most flexible modular system (OpenAI, Cohere, Hugging Face)
 - **TypeSense**: Multi-service integration (OpenAI, Google PaLM, GCP Vertex AI)
-- **Marqo**: Proprietary inference engine with multimodal capabilities
+- **Marqo**: Proprietary inference engine with multimodal capabilities and Marqtune for domain-specific fine-tuning
 - **OpenSearch**: Requires external vectorization but integrates well with ML pipelines
 
 **🔒 Enterprise Security Champions**
@@ -280,9 +280,11 @@ For detailed technical analysis, implementation guides, and specific use case re
 | **🌲 Pinecone** | [Complete Analysis →](./databases/PINECONE_REVIEW.md) | Serverless architecture, managed scaling, strong ecosystem | Production apps requiring minimal ops overhead | ⚠️ Watch for cost escalation >10M reads/month |
 | **🔍 OpenSearch** | [Complete Analysis →](./databases/OPENSEARCH_REVIEW.md) | Open source, unified platform, AWS integration, v3.0 performance | Enterprise with existing ElasticSearch/OpenSearch expertise | High operational overhead, requires significant tuning |
 | **⚡ Algolia** | [Complete Analysis →](./databases/ALGOLIA_REVIEW.md) | Global CDN, hybrid search, developer experience | Search-heavy applications with global users | Very expensive at scale |
-| **🎯 Marqo** | [Complete Analysis →](./databases/MARQO_REVIEW.md) | Multimodal capabilities, built-in ML inference | AI applications requiring image/text search | Moderate scaling costs |
+| **🎯 Marqo** | [Complete Analysis →](./databases/MARQO_REVIEW.md) | Multimodal capabilities, built-in ML inference, Marqtune fine-tuning | AI applications requiring image/text search | Moderate scaling costs, GPU-intensive workloads can escalate costs |
 | **🚀 TypeSense** | [Complete Analysis →](./databases/TYPESENSE_REVIEW.md) | Cost-effective, typo-tolerant search, easy setup | Small to medium scale with budget constraints | Best cost-performance ratio |
-| **⚡ Qdrant** | [Complete Analysis →](./databases/QDRANT_REVIEW.md) | High performance, Rust optimization, flexible filtering | High-throughput applications requiring speed | Excellent value at scale |
+| **🧊 Qdrant** | [Complete Analysis →](./databases/QDRANT_REVIEW.md) | High performance, Rust optimization, flexible filtering | High-throughput applications requiring speed | Excellent value at scale |
+| **🧠 Weaviate** | [Complete Analysis →](./databases/WEAVIATE_REVIEW.md) | Modular vectorization, GraphQL API, extensive ML integrations | AI applications requiring flexible data schemas and ML workflows | Schema-based multi-tenancy, scaling complexity |
+| **⚙️ SingleStore** | [Complete Analysis →](./databases/SINGLESTORE_REVIEW.md) | SQL integration, strong consistency (ACID), petabyte-scale, fastest indexing | Enterprise applications requiring SQL compatibility and transactional guarantees | Enterprise pricing, consolidation potential for existing SQL workloads |
 
 ---
 

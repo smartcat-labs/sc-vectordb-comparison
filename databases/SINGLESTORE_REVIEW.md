@@ -80,27 +80,27 @@ SingleStore is a distributed, relational SQL database management system that has
 - Native support for JSON, BSON, and vector data types
 - Integration with popular ML frameworks
 
-## Cons
+## Cons (Areas for Awareness & Planning) 
 
-### ❌ Vector-Specific Limitations
+### ⚙️ Vector-Specific Limitations
 - Currently only supports F32 element type for vectors
 - May not match absolute peak performance of top-tier specialized vector databases
 - Less granular control over vector-specific tuning compared to dedicated solutions
 - Vector index libraries still being integrated and optimized
 
-### ❌ Complexity for Simple Use Cases
+### ⚙️ Complexity for Simple Use Cases
 - Overkill for applications that only need vector search
 - Requires understanding of distributed SQL systems for optimal configuration
 - Higher operational overhead than simple vector-only databases
 - Resource contention possible between vector and other workloads
 
-### ❌ Cost Considerations
+### ⚙️ Cost Considerations
 - Can be expensive at scale compared to open-source alternatives
 - Memory requirements for high-performance vector indexes (HNSW)
 - Enterprise features only available in higher tiers
 - Compute costs scale with workspace size
 
-### ❌ Known Issues
+### ⚙️ Known Issues
 Recent developments and limitations:
 - Vector search is a relatively new addition (indexed ANN released mid-2024)
 - Documentation for vector-specific optimizations still evolving

@@ -10,7 +10,7 @@ A detailed technical analysis of leading vector database solutions across perfor
 | Scenario | **Recommended Solution** | **Why This Choice** | **Typical Budget** |
 |----------|--------------------------|---------------------|-------------------|
 | **🚀 MVP/Prototype** | **Qdrant Free** or **TypeSense** | Zero/low cost, production-ready, easy setup | $0-100/month |
-| **📱 Production App (<10M queries/month)** | **Pinecone (Serverless)** or **Qdrant Cloud** | Managed, reliable, good performance, zero ops | $70-500/month |
+| **📱 Production App (<50M queries/month)** | **Pinecone (Serverless)** or **Qdrant Cloud** | Managed, reliable, good performance, zero ops | $70-500/month |
 | **🏢 Enterprise Search** | **OpenSearch** or **SingleStore** | Proven at scale, security features, compliance | $1000+/month |
 | **🌍 Global Consumer App** | **Algolia** or **Pinecone (BYOC Multi-region)** | Global CDN, low latency worldwide | $500-5000/month |
 | **🎨 Multimodal AI (Text+Images)** | **Marqo** or **Weaviate** | Built-in multimodal capabilities | $200-1000/month |
@@ -239,7 +239,7 @@ Understanding financial implications requires analyzing not just subscription co
 
 | Database | Pricing Model | Starting Cost | Infrastructure Costs | Operational Costs | Cost Escalation Risk | TCO Rating |
 |-----------|---------------|---------------|---------------------|------------------|---------------------|------------|
-| **Pinecone** | Usage-based (Serverless / BYOC) | Free tier → $50 (Std) / $500 (Ent) min fee | ✅ Bundled | 🟢 Low (managed) | 🔴 High > 50 M reads / mo (non-linear) | 💰💰💰 |
+| **Pinecone** | Usage-based (Serverless / BYOC) | Free tier → $50 (Std) / $500 (Ent) min fee | ✅ Bundled | 🟢 Low (managed) | 🔴 High > 50 M reads / mo (linear (per-RU)) | 💰💰💰 |
 | **OpenSearch** | Open-source / AWS managed | Free (OSS) / $17.28+ / month (AWS)* | 💸 Direct hosting or AWS pricing | 🔴 Very high (complex tuning, expertise required) | ⚠️ Support, expertise, scaling complexity | 💰💰💰** |
 | **Algolia** | Usage-based | Free tier → $500+ / month | ✅ Bundled | 🟢 Low (managed) | 🔴 Very high scaling (>2M searches / month) | 💰💰💰💰 |
 | **Marqo** | Hybrid | Free (OSS) / Cloud pricing | 🔄 Mixed | 🟡 Medium | 🟢 Moderate | 💰💰 |

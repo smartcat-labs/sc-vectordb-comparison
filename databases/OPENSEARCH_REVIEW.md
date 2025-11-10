@@ -108,24 +108,24 @@ Serverless OpenSearch charges based on OpenSearch Compute Units (OCUs). One OCU 
 - Zero-ETL connectors reduce data movement costs
 - Managed service reduces operational overhead
 
-## Cons
+## Cons (Areas for Awareness & Planning) 
 
-### ❌ Performance Complexity
+### ⚙️ Performance Complexity
 - Requires extensive tuning for optimal vector search performance
 - Configuration-sensitive - poor settings lead to slow queries
 - Not optimized specifically for vector workloads (vs dedicated vector DBs)
 
-### ❌ Operational Overhead
+### ⚙️ Operational Overhead
 - Self-hosted requires significant DevOps expertise
 - Complex cluster management and maintenance
 - Resource-intensive for smaller workloads
 
-### ❌ Vector Search Limitations
+### ⚙️ Vector Search Limitations
 - Maximum 16,000 dimensions
 - Limited to traditional ANN algorithms (HNSW, IVF)
 - Performance gaps vs specialized vector databases
 
-### ❌ AWS Costs Can Escalate
+### ⚙️ AWS Costs Can Escalate
 - Instance costs accumulate quickly for larger clusters
 - Storage costs for large vector datasets
 - Data transfer charges between services

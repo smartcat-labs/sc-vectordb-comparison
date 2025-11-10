@@ -72,24 +72,24 @@ Marqo is an end-to-end vector search platform that extends beyond traditional ve
 - Continuous learning improves relevance over time
 - GPU acceleration for embedding generation
 
-## Cons
+## Cons (Areas for Awareness & Planning)
 
-### ❌ Learning Curve and Complexity
+### ⚙️ Learning Curve and Complexity
 - Steeper learning curve for teams new to vector search
 - Complex architecture requires understanding of both vector concepts and multimodal search
 - Limited documentation compared to more established platforms
 
-### ❌ Resource Requirements
+### ⚙️ Resource Requirements
 - High-performance vector search is computationally intensive
 - GPU requirements for optimal embedding generation performance
 - Memory-intensive operations for large-scale deployments
 
-### ❌ Maturity and Ecosystem
+### ⚙️ Maturity and Ecosystem
 - Newer platform with potentially limited third-party integrations
 - Smaller community compared to established vector databases
 - Less extensive benchmark data available publicly
 
-### ❌ Known Issues
+### ⚙️ Known Issues
 Recent reports from community forums:
 - Vespa container resource limit challenges in some configurations
 - Slow indexing performance on specific hardware (MacBook M1)

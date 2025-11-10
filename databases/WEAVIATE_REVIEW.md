@@ -93,24 +93,24 @@ Weaviate is an open-source vector database designed with a cloud-native architec
 - Good integration with AI frameworks (LangChain, LlamaIndex)
 - Comprehensive documentation and tutorials
 
-## Cons
+## Cons (Areas for Awareness & Planning) 
 
-### ❌ Performance Challenges at Scale
+### ⚙️ Performance Challenges at Scale
 - Reports of degradation with billions of vectors
 - Query latencies can reach 300-500ms under heavy load
 - Indexing bottlenecks in high-concurrency scenarios
 
-### ❌ Complex Horizontal Scaling
+### ⚙️ Complex Horizontal Scaling
 - Manual intervention often required for scale-up
 - Cannot be performed automatically per some reports
 - Requires assistance from Weaviate engineers
 
-### ❌ Vectorizer Dependencies
+### ⚙️ Vectorizer Dependencies
 - External API calls can introduce latency
 - Connectivity issues with vectorizer endpoints
 - Configuration complexity for optimal performance
 
-### ❌ Known Issues
+### ⚙️ Known Issues
 Recent reports indicate:
 - Shard assignment problems in clusters
 - Node desynchronization after OOM errors

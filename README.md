@@ -10,9 +10,9 @@ A detailed technical analysis of leading vector database solutions across perfor
 | Scenario | **Recommended Solution** | **Why This Choice** | **Typical Budget** |
 |----------|--------------------------|---------------------|-------------------|
 | **🚀 MVP/Prototype** | **Qdrant Free** or **TypeSense** | Zero/low cost, production-ready, easy setup | $0-100/month |
-| **📱 Production App (<10M queries/month)** | **Pinecone** or **Qdrant Cloud** | Managed, reliable, good performance | $70-500/month |
+| **📱 Production App (<10M queries/month)** | **Pinecone (Serverless)** or **Qdrant Cloud** | Managed, reliable, good performance, zero ops | $70-500/month |
 | **🏢 Enterprise Search** | **OpenSearch** or **SingleStore** | Proven at scale, security features, compliance | $1000+/month |
-| **🌍 Global Consumer App** | **Algolia** or **Pinecone (Multi-region)** | Global CDN, low latency worldwide | $500-5000/month |
+| **🌍 Global Consumer App** | **Algolia** or **Pinecone (BYOC Multi-region)** | Global CDN, low latency worldwide | $500-5000/month |
 | **🎨 Multimodal AI (Text+Images)** | **Marqo** or **Weaviate** | Built-in multimodal capabilities | $200-1000/month |
 | **💰 Budget-Conscious Scale** | **Self-hosted Qdrant** or **TypeSense** | Best performance per dollar | $100-1000/month |
 
@@ -28,13 +28,13 @@ Performance is fundamental to vector database utility, directly impacting user e
 | **Database** | **Query Latency** | **Throughput** | **Indexing Speed** | **Recall Accuracy** | **Scale Capacity** | **Hardware Optimization** |
 |----------|-------------------|----------------|-------------------|---------------------|--------------------|--------------------------|
 | **Qdrant** | 20-50ms | 626 QPS | Very fast | 99.5% | Billions+ | Rust optimization |
-| **Pinecone** | p2: <50ms, s1: >100ms | 10-150 QPS/pod | Real-time updates | 91.5-99% | Billions+ | Auto-managed, pod-dependent |
+| **Pinecone** | 10–50 ms (hot) / ≤ 20 s (cold, serverless) | 180–320 QPS (elastic) | Real-time upserts | 94–99% | Billions+ (Serverless + BYOC) | Auto‑managed / serverless |
 | **Algolia** | Keyword: <10ms, Hybrid: <20ms | Variable by search type | Real-time | High (proprietary) | Large-scale | Global CDN + compression | 
 | **SingleStore** | Competitive | 2nd best (benchANT) | Fastest load times | 88.8-91.5% | Petabyte | SQL + vector optimization | 
-| **Marqo** | 72.11ms P50, 140ms P99 (V2) | 157.7 QPS | Fast (Vespa backend) | 97% (V2) | Multi-billion | GPU support | 
-| **TypeSense** | <50ms (lexical) | Moderate | Real-time | Competitive | Millions-Billions | Optional GPU | 
-| **OpenSearch** | 10s+ to <200ms* | 16-147 QPS | 9.5x faster (v3.0 GPU) | 87.9% | Billions+ | GPU acceleration (v3.0) | 
-| **Weaviate** | <200ms | 15 QPS | Moderate | 80.6% | Billions+ | Modular processing |
+| **Marqo** | 72.11ms P50, 140ms P99 (V2) | 157.7 QPS | Fast (Vespa backend) | 97% (V2) | Multi‑billion | GPU support | 
+| **TypeSense** | <50ms (lexical) | Moderate | Real-time | Competitive | Millions‑Billions | Optional GPU | 
+| **OpenSearch** | 10s+ to <200ms* | 16‑147 QPS | 9.5x faster (v3.0 GPU) | 87.9% | Billions+ | GPU acceleration (v3.0) | 
+| **Weaviate** | <200ms | 15 QPS | Moderate | 80.6% | Billions+ | Modular processing |
 
 *OpenSearch: Highly variable performance - requires significant tuning, can achieve A-grade with proper configuration
 
@@ -43,23 +43,23 @@ Performance is fundamental to vector database utility, directly impacting user e
 **⚡ Lowest Latency Leaders**
 - **Algolia**: Single-digit milliseconds for keyword search, <20ms for hybrid
 - **Qdrant**: 20-50ms in production case studies
-- **Pinecone (p2 pods)**: Sub-50ms for high-performance configurations
+- **Pinecone (Serverless)**: 10–50 ms (hot), cold starts ≤ 20 s
 - **TypeSense**: Sub-50ms for lexical search scenarios
 
 **🚀 Highest Throughput Leaders**
-- **Qdrant**: 626.5 QPS with excellent recall
-- **Marqo V2**: 157.7 QPS with significant improvements over V1 (147.8 QPS)
-- **Pinecone**: 10-150 QPS per pod (requires multiple pods for high throughput)
+- **Qdrant**: 626.5 QPS with excellent recall
+- **Marqo V2**: 157.7 QPS
+- **Pinecone Serverless**: 180–320 QPS (elastic auto‑scaling)
 
 **📈 Best Recall Accuracy**
-- **Qdrant**: 99.5% recall with high performance
-- **Pinecone**: 91.5-99% recall (varies significantly by benchmark)
-- **Marqo V2**: 97% recall (major improvement from V1's 81%)
+- **Qdrant**: 99.5% recall with high performance
+- **Pinecone**: 94–99% (depending on dimension/top‑k)
+- **Marqo V2**: 97% recall (major improvement from V1's 81%)
 
 **⚡ Fastest Indexing**
-- **SingleStore**: Fastest load times in benchmarks
-- **OpenSearch v3.0**: 9.3x faster with GPU acceleration
-- **Real-time leaders**: Pinecone, Algolia, TypeSense for immediate updates
+- **SingleStore**: Fastest load times in benchmarks
+- **OpenSearch v3.0**: 9.3x faster with GPU acceleration
+- **Real-time leaders**: Pinecone, Algolia, TypeSense for immediate updates
 
 ---
 
@@ -74,21 +74,21 @@ Modern applications demand systems capable of handling billions of vectors while
 
 | Database | Data Volume Capacity | Concurrency Support | Architecture Model | Scaling Approach | Deployment Options | Consistency Model |
 |----------|---------------------|--------------------|--------------------|------------------|-------------------|-------------------|
-| **Pinecone** | Billions+ vectors | Variable (pod-dependent) | Serverless + Pod-based | Horizontal (pod scaling) + Serverless | Managed only | Eventually consistent |
-| **OpenSearch (k-NN)** | Billions+ (16k max dimensions)* | High (with proper configuration) | Distributed cluster with v3.0 enhancements** | Horizontal + Vertical | Managed + Self-hosted | Eventually consistent |
-| **Algolia NeuralSearch** | Large-scale | High (managed) | Distributed + CDN with multi-tenant isolation | Horizontal (managed) | Managed only | Eventually consistent |
-| **Marqo** | Multi-billion | High | Distributed (Vespa backend) | Horizontal | Managed + Self-hosted | Eventually consistent |
-| **TypeSense** | Millions to billions | High | Distributed cluster | Horizontal | Managed + Self-hosted | Eventually consistent |
-| **Qdrant** | Billions+ vectors | Very high | Distributed BASE model | Horizontal + Vertical | Managed + Self-hosted | Eventually consistent |
-| **Weaviate** | Billions+ vectors | High | Distributed + Sharding | Horizontal | Managed + Self-hosted | Eventually consistent |
-| **SingleStore** | Petabyte-scale | Very high | Distributed SQL + ACID | Horizontal + Vertical | Managed + Self-hosted | Strong consistency |
+| **Pinecone** | Billions+ | Elastic (Serverless) | Serverless + BYOC (legacy Pods read‑only) | Automatic elastic scaling + horizontal sharding | Managed (Serverless or BYOC) | Eventually consistent |
+| **OpenSearch (k‑NN)** | Billions+ (16k max dimensions)* | High (with proper configuration) | Distributed cluster with v3.0 enhancements** | Horizontal + Vertical | Managed + Self‑hosted | Eventually consistent |
+| **Algolia NeuralSearch** | Large‑scale | High (managed) | Distributed + CDN with multi‑tenant isolation | Horizontal (managed) | Managed only | Eventually consistent |
+| **Marqo** | Multi‑billion | High | Distributed (Vespa backend) | Horizontal | Managed + Self‑hosted | Eventually consistent |
+| **TypeSense** | Millions to billions | High | Distributed cluster | Horizontal | Managed + Self‑hosted | Eventually consistent |
+| **Qdrant** | Billions+ vectors | Very high | Distributed BASE model | Horizontal + Vertical | Managed + Self‑hosted | Eventually consistent |
+| **Weaviate** | Billions+ vectors | High | Distributed + Sharding | Horizontal | Managed + Self‑hosted | Eventually consistent |
+| **SingleStore** | Petabyte‑scale | Very high | Distributed SQL + ACID | Horizontal + Vertical | Managed + Self‑hosted | Strong consistency |
 
 ### 🏛️ Architecture Highlights
 
-**☁️ Serverless Architecture**
-- **Pinecone**: Pioneer in serverless vector databases with automatic scaling and pay-per-use model
-- **Benefits**: Operational simplicity, cost-efficiency for variable workloads
-- **Trade-offs**: Performance variability, less control over infrastructure, potential cost escalation
+**☁️ Serverless Architecture**
+- **Pinecone**: Serverless‑first model (auto‑scaling reads/writes, no pods) with optional BYOC for data residency.
+- **Benefits**: Zero capacity planning, pay‑per‑use, fast startup.
+- **Trade‑offs**: Cold start latency (≤ 20 s), pricing spikes > 50 M reads/mo.
 
 **🔄 Distributed Systems**
 - **OpenSearch, Qdrant, Weaviate**: Traditional distributed architectures
@@ -124,10 +124,10 @@ Efficient indexing algorithms are fundamental to fast similarity search. The cho
 | **Weaviate** | ✅ | ❌ | ✅ | ❌ | ❌ | ❌ | Custom HNSW with CRUD |
 | **SingleStore** | ✅ | ✅ | ✅ | ❌ | ❌ | ✅ (AUTO) | Faiss-based implementations |
 
-### 🎯 Indexing Innovations
+### 🎯 Indexing Innovations
 
-**🤖 Automated Algorithm Selection**
-- **Pinecone**: Adaptive indexing based on data slab size with proprietary optimizations
+**🤖 Automated Algorithm Selection**
+- **Pinecone**: Adaptive indexing based on Slab size (automated tier assignment).
 - **SingleStore**: AUTO index type for optimal algorithm selection
 - **Algolia**: Proprietary NeuralHashing™ for compression and speed
 
@@ -154,7 +154,7 @@ Advanced querying capabilities determine real-world applicability. The trend tow
 
 | Database | k-NN Search | Range Search | Distance Metrics | Metadata Filtering | Filtering Strategy | Hybrid Search |
 |----------|-------------|--------------|------------------|-------------------|-------------------|---------------|
-| **Pinecone** | ✅ | ✅ | Cosine, Euclidean, Dot Product | ✅ Advanced | Disk-based, efficient | ✅ Dense + Sparse |
+| **Pinecone** | ✅ | ✅ | Cosine, Euclidean, Dot Product | ✅ (JSON‑like) | Disk‑backed + in‑memory filter index | ✅ Dense + Sparse |
 | **OpenSearch** | ✅ (Approximate & Exact*) | ✅ | Cosine, Euclidean, L1, Hamming | ✅ Extensive | Pre-filtering (exact), Post-filtering (ANN) | ✅ BM25 + Vector (Neural Sparse Search**) |
 | **Algolia** | ✅ | ✅ | Multiple (proprietary) | ✅ Rich faceting | Integrated filtering | ✅ NeuralSearch™ |
 | **Marqo** | ✅ | ✅ | Euclidean, Angular, Dot, Hamming | ✅ Query DSL | Pre-filtering | ✅ Multimodal |
@@ -195,7 +195,7 @@ Comprehensive data management capabilities are essential for production deployme
 
 | Database | Vectorization Options | CRUD Operations | APIs & SDKs | ML Integrations | Multi-tenancy | Security | Data Types |
 |----------|----------------------|----------------|-------------|-----------------|---------------|----------|------------|
-| **Pinecone** | External only | ✅ Full | ✅ Excellent | ✅ LangChain, LlamaIndex | ✅ Namespaces | ✅ Enterprise-grade | ✅ Rich metadata |
+| **Pinecone** | External only (OpenAI, Cohere, etc.) | ✅ Full | ✅ Excellent (Python, Go, JS, Java, .NET) | ✅ LangChain, LlamaIndex | ✅ Namespaces (multi‑tenant) | ✅ Enterprise‑grade (99.95 % SLA, HIPAA) | ✅ Rich metadata |
 | **OpenSearch** | External only (requires index.knn: true) | ✅ Full | ✅ Comprehensive | ✅ LangChain, LlamaIndex | ✅ Index-based | ✅ Full enterprise (AWS IAM, fine-grained access) | ✅ JSON, all types |
 | **Algolia** | Built-in NeuralSearch™ | ✅ Full | ✅ Excellent | ✅ AI-driven features (Synonyms, Re-Ranking) | ✅ Secure data isolation per application | ✅ Good | ✅ Rich faceted |
 | **Marqo** | ✅ Built-in inference, Marqtune for fine-tuning | ✅ Full | ✅ Good | ✅ Custom models | ⚠️ Basic | ✅ Standard | ✅ Multimodal |
@@ -238,18 +238,17 @@ Understanding financial implications requires analyzing not just subscription co
 ### Cost Model Comparison Matrix
 
 | Database | Pricing Model | Starting Cost | Infrastructure Costs | Operational Costs | Cost Escalation Risk | TCO Rating |
-|----------|---------------|---------------|---------------------|-------------------|---------------------|------------|
-| **Pinecone** | Usage-based (Serverless/Pod) | Free tier → $70+/month | ✅ Bundled | 🟢 Low (managed) | 🔴 Very high at scale (>10M reads/month) | 💰💰💰 |
-| **OpenSearch** | Open-source / AWS managed | Free (OSS) / $17.28+/month (AWS)* | 💸 Direct hosting or AWS pricing | 🔴 Very high (complex tuning, expertise required) | ⚠️ Support, expertise, scaling complexity | 💰💰💰** |
-| **Algolia** | Usage-based | Free tier → $500+/month | ✅ Bundled | 🟢 Low (managed) | 🔴 Very high scaling (>2M searches/month) | 💰💰💰💰 |
+|-----------|---------------|---------------|---------------------|------------------|---------------------|------------|
+| **Pinecone** | Usage-based (Serverless / BYOC) | Free tier → $50 (Std) / $500 (Ent) min fee | ✅ Bundled | 🟢 Low (managed) | 🔴 High > 50 M reads / mo (non-linear) | 💰💰💰 |
+| **OpenSearch** | Open-source / AWS managed | Free (OSS) / $17.28+ / month (AWS)* | 💸 Direct hosting or AWS pricing | 🔴 Very high (complex tuning, expertise required) | ⚠️ Support, expertise, scaling complexity | 💰💰💰** |
+| **Algolia** | Usage-based | Free tier → $500+ / month | ✅ Bundled | 🟢 Low (managed) | 🔴 Very high scaling (>2M searches / month) | 💰💰💰💰 |
 | **Marqo** | Hybrid | Free (OSS) / Cloud pricing | 🔄 Mixed | 🟡 Medium | 🟢 Moderate | 💰💰 |
-| **TypeSense** | Hybrid | Free (OSS) / $20+/month | 🔄 Mixed | 🟡 Medium | 🟢 Low | 💰 |
-| **Qdrant** | Hybrid | Free tier → $25+/month | 🔄 Mixed | 🟡 Medium | 🟢 Moderate | 💰💰 |
-| **Weaviate** | Hybrid | Free (OSS) / $25+/month | 🔄 Mixed | 🟡 Medium | ⚠️ Scaling complexity | 💰💰 |
+| **TypeSense** | Hybrid | Free (OSS) / $20+ / month | 🔄 Mixed | 🟡 Medium | 🟢 Low | 💰 |
+| **Qdrant** | Hybrid | Free tier → $25+ / month | 🔄 Mixed | 🟡 Medium | 🟢 Moderate | 💰💰 |
+| **Weaviate** | Hybrid | Free (OSS) / $25+ / month | 🔄 Mixed | 🟡 Medium | ⚠️ Scaling complexity | 💰💰 |
 | **SingleStore** | Resource-based | Enterprise pricing | 🔄 Mixed | 🟡 Medium (SQL expertise) | 🟢 Consolidation savings | 💰💰💰 |
 
-
-### 💡 Cost Strategy Recommendations
+### 💡 Cost Strategy Recommendations
 
 **🚀 Best for Startups (< 1M vectors)**
 - **TypeSense**: Most cost-effective overall
@@ -262,7 +261,8 @@ Understanding financial implications requires analyzing not just subscription co
 - **Pod-based Pinecone**: More predictable than serverless at scale
 
 **⚡ Best for Rapid Deployment**
-- **Pinecone**: Fastest to production despite higher costs
+**Pinecone Serverless:** Best for RAG and agentic apps ≤ 50 M reads/mo.  
+- **Pinecone BYOC:** Predictable billing & data residency for enterprise.
 - **AWS OpenSearch Serverless**: OCU-based pricing, no management overhead
 - **TypeSense Cloud**: Best balance of speed and affordability
 - **Qdrant Cloud**: Good performance with reasonable pricing
@@ -277,7 +277,7 @@ For detailed technical analysis, implementation guides, and specific use case re
 
 | Database | Review Link | Key Strengths | Best For | Cost Considerations |
 |----------|-------------|---------------|----------|-------------------|
-| **🌲 Pinecone** | [Complete Analysis →](./databases/PINECONE_REVIEW.md) | Serverless architecture, managed scaling, strong ecosystem | Production apps requiring minimal ops overhead | ⚠️ Watch for cost escalation >10M reads/month |
+| **🌲 Pinecone** | [Complete Analysis →](./databases/PINECONE_REVIEW.md) | Serverless architecture, elastic scaling, BYOC option for compliance | Production RAG and agentic apps needing zero ops | ⚠️ Cost escalation > 50 M reads/mo; $50 / $500 minimum fees |
 | **🔍 OpenSearch** | [Complete Analysis →](./databases/OPENSEARCH_REVIEW.md) | Open source, unified platform, AWS integration, v3.0 performance | Enterprise with existing ElasticSearch/OpenSearch expertise | High operational overhead, requires significant tuning |
 | **⚡ Algolia** | [Complete Analysis →](./databases/ALGOLIA_REVIEW.md) | Global CDN, hybrid search, developer experience | Search-heavy applications with global users | Very expensive at scale |
 | **🎯 Marqo** | [Complete Analysis →](./databases/MARQO_REVIEW.md) | Multimodal capabilities, built-in ML inference, Marqtune fine-tuning | AI applications requiring image/text search | Moderate scaling costs, GPU-intensive workloads can escalate costs |
@@ -288,4 +288,4 @@ For detailed technical analysis, implementation guides, and specific use case re
 
 ---
 
-*Last updated: June 2025 | Based on comprehensive analysis of current pricing, performance benchmarks, and community feedback*
+*Last updated: November 2025 | Based on comprehensive analysis and Pinecone official documentation updates.*

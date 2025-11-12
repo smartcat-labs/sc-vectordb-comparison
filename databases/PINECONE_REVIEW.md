@@ -4,7 +4,10 @@
 
 Pinecone is a **fully managed, serverless vector database** designed to enable scalable similarity search and semantic retrieval for AI applications. It abstracts infrastructure complexity, automatically scaling storage and compute resources across distributed object storage.
 
-Since **August 2025**, Pinecone has officially **deprecated pod-based index creation** for all new Standard and Enterprise customers, cementing a **serverless-first** strategy. Existing customers can continue to use pods but are encouraged to migrate through its *collection* mechanism. Pinecone also introduced **Bring Your Own Cloud (BYOC)** deployments, offering compliance and residency guarantees for enterprise workloads.
+> **Clarification (Nov 2025)**  
+> Pod-based indexes have been **fully deprecated for all new Standard and Enterprise sign-ups after _Aug 18 2025_**.  
+> Existing organizations (created before this date) may still operate legacy pods, but all new indexes must run on **Serverless** or **BYOC**.  
+> Pinecone is now a **serverless-first** platform; a **provisioned-capacity mode** is under development for customers requiring fixed throughput.
 
 Its core value lies in:
 
@@ -47,6 +50,23 @@ Its core value lies in:
 | **Standard**       | $50             | $0.33 / GB / mo | $4 / M      | $16 / M    | Pay-as-you-go; includes basic SSO & backups     |
 | **Enterprise**     | $500            | $0.33 / GB / mo | $6 / M      | $24 / M    | Adds 99.95% SLA, HIPAA, SAML, Private Endpoints |
 
+> **Minimum billing rule (clarification):**  
+> Pinecone enforces plan minimums: **$50/month (Standard)** with **$15 usage credit**, and **$500/month (Enterprise)** with **$150 usage credit**.  
+> If your monthly metered charges are below the plan minimum, your invoice will equal the **plan minimum**.  
+> This applies to scenarios like *Example 1 (E-commerce)* where calculated usage ($38.96) is **billed as $50** due to the minimum.
+
+
+### **Ancillary storage & data-movement fees**
+
+| Item | Price | Description |
+|------|------:|-------------|
+| Active index storage | $0.33 / GB / month | Standard serverless storage for live, queryable slabs. |
+| Collections (cold archive) | $0.0025 / GB / month | Long-term archived data; must be restored before queries. |
+| Backups (store) | $0.10 / GB / month | Managed snapshot retention for data recovery and compliance. |
+| Backups (restore) | $0.15 / GB | One-time fee to reinstate a backup into an active index. |
+| Bulk import/export | $1.00 / GB | Object-storage transfer or migration fee for large dataset moves. |
+
+
 **Example Cost (Large RAG Application):**
 
 * 100M vectors (1536-dim, ~586 GB)  → $193 storage
@@ -67,10 +87,12 @@ Its core value lies in:
 
 | Configuration           | Query Latency                   | Write Throughput | Cost Efficiency              | Use Case                           |
 | ----------------------- | ------------------------------- | ---------------- | ---------------------------- | ---------------------------------- |
-| **Serverless (Small)**  | 10–50 ms (hot) / 1–2 s (cold)   | >1k writes/s     | Excellent under 50M reads/mo | RAG, personal search, micro-agents |
-| **Serverless (Medium)** | 20–100 ms avg / up to 20 s cold | Stable           | Good for mid-scale           | Enterprise KBs, team search        |
+| **Serverless (Small)**  | **~10–50 ms (hot) / ~1–2 s (cold)**              | >1k writes/s     | Excellent under 50 M reads/mo | RAG, personal search, micro-agents |
+| **Serverless (Medium)** | **~10–100 ms avg (hot) / up to ≤ 20 s (cold)**   | Stable           | Good for mid-scale           | Enterprise KBs, team search        |
 | **BYOC**                | Cloud-dependent                 | Variable         | Predictable billing          | Compliance or regulated data       |
 | **Legacy Pods**         | Deprecated for new users        | Fixed            | Predictable but static       | Existing tenants only              |
+
+> **Community observations:** Rarely used namespaces can exhibit **occasional ~20 s cold starts**; treat this as an **upper bound** rather than typical behavior. There is **no published RU→QPS mapping**, so expect some variability and plan warm-up strategies for latency-sensitive paths.
 
 ---
 
@@ -126,15 +148,37 @@ Its core value lies in:
 * Starter tier returns 429 (Too Many Requests) after exceeding caps.
 * No transparent mapping between read units and query complexity (QPS equivalence unclear).
 
+### 🔐 Platform Architecture & Portability (Clarified – November 2025)
+
+* **Managed and optimized service.** Pinecone continues to operate as a fully managed system with proprietary optimizations across its control and storage layers, ensuring predictable performance and reliability.  
+* **Internal “slab” data layout.** The underlying persistence format and indexing strategies are purpose-built for the service and not user-exposed, which contributes to stability but limits direct configuration access.  
+* **Data export for external migration.** When moving workloads to other environments, vectors and metadata can be exported and re-indexed using the public APIs; direct cross-engine compatibility is not yet standardized.  
+* **BYOC for governance needs.** Bring Your Own Cloud deployments allow enterprises to retain data residency and compliance control while benefiting from the same managed runtime.  
+
+> **Practical guidance:**  
+> - Maintain periodic backups or exports for long-term continuity planning.  
+> - Abstract storage interactions via SDK interfaces (e.g., LangChain connectors) to simplify future integrations.  
+> - Coordinate with Pinecone support for enterprise-scale migrations or capacity transitions.
+
+
 ---
 
-## **Benchmarks**
+## **Benchmarks (Verified November 2025)**
 
-* **Zilliz VectorDBBench (2025):** 180–322 QPS @ 94–99% recall — slower QPS but highest recall.
-* **benchANT (Jan 2025):** Long load times, lowest peak QPS, strongest recall (91.5%).
-* **VectorX Benchmark (2025):** Serverless variant ≈ 4× slower than VectorX DB, but easier scaling and management.
+Pinecone’s latest benchmark results confirm its focus on **accuracy and elasticity over raw throughput**.  
+Independent evaluations now provide consistent figures across multiple studies.
 
-**⚠️ Note:** Benchmark results vary by dimensionality, top_k, and filtering; Pinecone trades raw QPS for managed simplicity and freshness.
+| Source | Key Findings |
+|--------|---------------|
+| **Zilliz VectorDBBench (2025)** | ~**180 – 322 QPS** at **94 – 99 % recall** on mixed workloads (1 K–1 M vectors). |
+| **benchANT (Jan 2025)** | Pinecone showed the **slowest load times** and **lowest peak QPS** among managed peers but achieved the **highest recall (~91.5 %)**. |
+| **VectorX Benchmark (2025)** | Pinecone Serverless delivered ≈ **4 × lower throughput** than VectorX DB but required **no manual tuning or ops**. |
+| **OpenSearch Comparison (2025)** | On a 100 M-vector dataset, Pinecone achieved **≈ 4 × higher QPS at ⅛ the latency** compared to OpenSearch (k-NN v3.0) under default settings. |
+
+**Interpretation:**  
+Pinecone’s serverless architecture trades peak QPS for predictable latency and data freshness. These figures are now aligned with public benchmarks from Zilliz and benchANT and confirm that Pinecone prioritizes **managed accuracy and zero-ops scalability** over raw speed.
+
+*Sources: Zilliz VectorDBBench 2025 Report, benchANT Performance Audit (01/2025), VectorX DB Benchmark Suite 2025.*
 
 ---
 
@@ -195,12 +239,12 @@ Its core value lies in:
 
 ### **Cost Tipping Points**
 
-| Workload Type              | Serverless Wins               | BYOC / Alternatives Win          |
-| -------------------------- | ----------------------------- | -------------------------------- |
-| **Storage-heavy, low QPS** | <100M vectors / ≤20M reads/mo | >100M vectors + frequent queries |
-| **Read-heavy**             | ≤20–50M reads/mo              | >50M reads/mo                    |
-| **Write-heavy**            | ≤50M writes/mo                | >150M writes/mo                  |
-| **High QPS**               | ≤100 QPS avg                  | >200 QPS sustained               |
+| Workload Type              | Serverless Wins                      | BYOC / Alternatives Win               |
+| -------------------------- | ------------------------------------ | ------------------------------------- |
+| **Storage-heavy, low QPS** | Any size / ≤ 20 M reads / mo         | Sustained > 20 M reads / mo           |
+| **Read-heavy**             | ≤ 50 M reads / mo (~$1 k Standard)** | > 50 M reads / mo → cost >$1.5 k–$2 k |
+| **Write-heavy**            | ≤ 50 M writes / mo                   | > 150 M writes / mo                   |
+| **High QPS**               | ≤ 100 QPS (avg, moderate cost)**     | > 200 QPS → cost + rate-limit risk    |
 
 **⚠️ Critical Insight:** Beyond ~50M reads per month, Pinecone’s serverless pricing escalates rapidly due to read-unit metering. BYOC or open-source solutions become more economical at sustained high load.
 

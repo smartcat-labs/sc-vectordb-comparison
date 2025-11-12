@@ -76,27 +76,27 @@ Qdrant is a high-performance vector similarity search engine and database built 
 - Quantization options for memory optimization
 - Real-time updates without index rebuilds or downtime
 
-## Cons
+## Cons (Areas for Awareness & Planning) 
 
-### ❌ Ecosystem Maturity
+### ⚙️ Ecosystem Maturity
 - Relatively newer entrant compared to established databases like Elasticsearch
 - Third-party tools and integrations still maturing in some areas
 - Smaller community compared to more established solutions
 - Documentation gaps for some advanced configurations
 
-### ❌ Operational Complexity
+### ⚙️ Operational Complexity
 - Self-managing open-source version requires specialized expertise
 - Complex distributed system tuning for optimal performance
 - Learning curve for teams unfamiliar with vector database concepts
 - Resource planning and capacity management challenges
 
-### ❌ Cost Considerations
+### ⚙️ Cost Considerations
 - Managed cloud pricing can become expensive at large scale
 - Resource-intensive for high-performance configurations
 - Memory requirements for large datasets can drive infrastructure costs
 - Limited cost predictability for variable workloads
 
-### ❌ Known Issues
+### ⚙️ Known Issues
 Recent reports or documented problems:
 - High resource consumption when creating large numbers of collections (Reddit discussions)
 - Documentation recommends single collection with multi-tenancy but may not suit strict isolation requirements

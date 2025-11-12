@@ -79,24 +79,24 @@ Algolia is a cloud-native Search-as-a-Service platform that combines traditional
 - Automatic scaling and high availability
 - Built-in monitoring and analytics
 
-## Cons
+## Cons (Areas for Awareness & Planning)
 
-### ❌ High Cost
+### ⚙️ High Cost
 - Expensive at scale, frequently cited user concern
 - Costs escalate rapidly with record count and search volume
 - Add-on features increase total cost significantly
 
-### ❌ Vendor Lock-in
+### ⚙️ Vendor Lock-in
 - Proprietary NeuralSearch™ and NeuralHashing™ technology
 - Limited transparency into underlying algorithms
 - Difficult migration path from platform
 
-### ❌ Implementation Complexity
+### ⚙️ Implementation Complexity
 - Steep learning curve for initial setup
 - Schema design and relevance tuning require expertise
 - Not always "plug-and-play" despite good APIs
 
-### ❌ Support Limitations
+### ⚙️ Support Limitations
 - Support quality varies by pricing tier
 - Smaller customers report slow or unhelpful support
 - "Pay-to-play" model for premium assistance

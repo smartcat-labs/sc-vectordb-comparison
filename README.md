@@ -34,7 +34,7 @@ Performance is fundamental to vector database utility, directly impacting user e
 | **Marqo** | 72.11ms P50, 140ms P99 (V2) | 157.7 QPS | Fast (Vespa backend) | 97% (V2) | Multi‑billion | GPU support | 
 | **TypeSense** | <50ms (lexical) | Moderate | Real-time | Competitive | Millions‑Billions | Optional GPU | 
 | **OpenSearch** | 10s+ to <200ms* | 16‑147 QPS | 9.5x faster (v3.0 GPU) | 87.9% | Billions+ | GPU acceleration (v3.0) | 
-| **Weaviate** | <200ms | 15 QPS | Moderate | 80.6% | Billions+ | Modular processing |
+| **Weaviate** | ~30–150ms | 300–1500 QPS | Moderate | 85–97%+ | Billions+ | Modular index + compression |
 
 *OpenSearch: Highly variable performance - requires significant tuning, can achieve A-grade with proper configuration
 
@@ -50,6 +50,8 @@ Performance is fundamental to vector database utility, directly impacting user e
 - **Qdrant**: 626.5 QPS with excellent recall
 - **Marqo V2**: 157.7 QPS
 - **Pinecone Serverless**: 180–320 QPS (elastic auto‑scaling)
+- **Weaviate**: 300–1500+ QPS with RQ/BQ compression + rescoring  
+  (Strong choice for mid-scale, hybrid workloads)
 
 **📈 Best Recall Accuracy**
 - **Qdrant**: 99.5% recall with high performance
@@ -80,7 +82,7 @@ Modern applications demand systems capable of handling billions of vectors while
 | **Marqo** | Multi‑billion | High | Distributed (Vespa backend) | Horizontal | Managed + Self‑hosted | Eventually consistent |
 | **TypeSense** | Millions to billions | High | Distributed cluster | Horizontal | Managed + Self‑hosted | Eventually consistent |
 | **Qdrant** | Billions+ vectors | Very high | Distributed BASE model | Horizontal + Vertical | Managed + Self‑hosted | Eventually consistent |
-| **Weaviate** | Billions+ vectors | High | Distributed + Sharding | Horizontal | Managed + Self‑hosted | Eventually consistent |
+| **Weaviate** | Billions+ vectors | High | Raft-backed distributed cluster, per-tenant sharding, ACORN filtering, compression (BQ/RQ) | Horizontal | Managed + Self‑hosted | Eventually consistent |
 | **SingleStore** | Petabyte‑scale | Very high | Distributed SQL + ACID | Horizontal + Vertical | Managed + Self‑hosted | Strong consistency |
 
 ### 🏛️ Architecture Highlights
@@ -122,7 +124,7 @@ Efficient indexing algorithms are fundamental to fast similarity search. The cho
 | **Marqo** | ✅ | ❌ | ❌ | ❌ | ❌ | ❌ | Vespa-optimized HNSW |
 | **TypeSense** | ✅ | ❌ | ❌ | ❌ | ❌ | ❌ | Standard HNSW |
 | **Qdrant** | ✅ | ❌ | ✅ | ❌ | ❌ | ❌ | Filterable HNSW |
-| **Weaviate** | ✅ | ❌ | ✅ | ❌ | ❌ | ❌ | Custom HNSW with CRUD |
+| **Weaviate** | ✅ | ❌ | RQ/BQ | ❌ | ❌ | ❌ | HNSW + RQ/BQ (full CRUD) |
 | **SingleStore** | ✅ | ✅ | ✅ | ❌ | ❌ | ✅ (AUTO) | Faiss-based implementations |
 
 ### 🎯 Indexing Innovations
@@ -161,7 +163,7 @@ Advanced querying capabilities determine real-world applicability. The trend tow
 | **Marqo** | ✅ | ✅ | Euclidean, Angular, Dot, Hamming | ✅ Query DSL | Pre-filtering | ✅ Multimodal |
 | **TypeSense** | ✅ | ✅ | Cosine (primary) | ✅ | Standard filtering | ✅ Rank Fusion |
 | **Qdrant** | ✅ | ✅ | Cosine, Euclidean, Dot Product | ✅ JSON payload | **In-flight filtering** | ✅ (External) |
-| **Weaviate** | ✅ | ✅ | Cosine, Euclidean, Dot, Hamming | ✅ Property-based | Standard filtering | ✅ BM25 + Vector |
+| **Weaviate** | ✅ | ✅ | Cosine, Euclidean, Dot, Hamming | ✅ Property-based | ACORN filtering (post-filter ANN) | ✅ BM25 + Vector |
 | **SingleStore** | ✅ | ✅ | Euclidean, Dot Product | ✅ SQL predicates | **SQL-integrated** | ✅ Re-ranking |
 
 ### 🎯 Querying Excellence
@@ -202,7 +204,7 @@ Comprehensive data management capabilities are essential for production deployme
 | **Marqo** | ✅ Built-in inference, Marqtune for fine-tuning | ✅ Full | ✅ Good | ✅ Custom models | ⚠️ Basic | ✅ Standard | ✅ Multimodal |
 | **TypeSense** | ✅ Built-in + External | ✅ Full | ✅ Good | ✅ OpenAI, Google PaLM | ⚠️ Collection-based | ✅ Standard | ✅ Rich metadata |
 | **Qdrant** | External only | ✅ Full with real-time | ✅ Excellent | ✅ LangChain, custom | ✅ Payload-based | ✅ Enterprise-ready | ✅ JSON, geo, nested |
-| **Weaviate** | ✅ Modular vectorizers | ✅ Full CRUD | ✅ GraphQL + REST | ✅ Extensive modules | ⚠️ Schema-based | ✅ Good | ✅ Rich schema |
+| **Weaviate** | ✅ Modular vectorizers | ✅ Full CRUD | ✅ GraphQL + REST | ✅ Extensive modules | ✅ True multi-tenancy (1 tenant = 1 shard, lazy-loaded) | ✅ Good | ✅ Rich schema |
 | **SingleStore** | External only | ✅ SQL CRUD | ✅ SQL + drivers | ✅ Standard SQL tools | ✅ Database-level | ✅ Enterprise RDBMS | ✅ Full SQL types |
 
 ### 🏆 Feature Excellence
@@ -246,7 +248,7 @@ Understanding financial implications requires analyzing not just subscription co
 | **Marqo** | Hybrid | Free (OSS) / Cloud pricing | 🔄 Mixed | 🟡 Medium | 🟢 Moderate | 💰💰 |
 | **TypeSense** | Hybrid | Free (OSS) / $20+ / month | 🔄 Mixed | 🟡 Medium | 🟢 Low | 💰 |
 | **Qdrant** | Hybrid | Free tier → $25+ / month | 🔄 Mixed | 🟡 Medium | 🟢 Moderate | 💰💰 |
-| **Weaviate** | Hybrid | Free (OSS) / $25+ / month | 🔄 Mixed | 🟡 Medium | ⚠️ Scaling complexity | 💰💰 |
+| **Weaviate** | Hybrid | Free (OSS) / ~$45 (Flex), ~$280 (Plus) / month | 🔄 Mixed | 🟡 Medium | ⚠️ Scaling complexity | 💰💰 |
 | **SingleStore** | Resource-based | Enterprise pricing | 🔄 Mixed | 🟡 Medium (SQL expertise) | 🟢 Consolidation savings | 💰💰💰 |
 
 ### 💡 Cost Strategy Recommendations
@@ -255,6 +257,7 @@ Understanding financial implications requires analyzing not just subscription co
 - **TypeSense**: Most cost-effective overall
 - **Qdrant Free Tier**: Excellent performance at no cost
 - **OpenSearch Self-hosted**: If expertise available (steep learning curve)
+- **Weaviate (Flex)**: hybrid search, predictable cost, modular vectorization
 
 **🏢 Best for Scale (100M+ vectors)**
 - **Self-hosted Qdrant**: Best performance per dollar
@@ -267,6 +270,7 @@ Understanding financial implications requires analyzing not just subscription co
 - **AWS OpenSearch Serverless**: OCU-based pricing, no management overhead
 - **TypeSense Cloud**: Best balance of speed and affordability
 - **Qdrant Cloud**: Good performance with reasonable pricing
+- **Weaviate Cloud (Flex/Plus)**: fastest for hybrid RAG + multi-tenant prototypes
 
 # 📚 Individual Database Deep Dives
 
@@ -284,7 +288,7 @@ For detailed technical analysis, implementation guides, and specific use case re
 | **🎯 Marqo** | [Complete Analysis →](./databases/MARQO_REVIEW.md) | Multimodal capabilities, built-in ML inference, Marqtune fine-tuning | AI applications requiring image/text search | Moderate scaling costs, GPU-intensive workloads can escalate costs |
 | **🚀 TypeSense** | [Complete Analysis →](./databases/TYPESENSE_REVIEW.md) | Cost-effective, typo-tolerant search, easy setup | Small to medium scale with budget constraints | Best cost-performance ratio |
 | **🧊 Qdrant** | [Complete Analysis →](./databases/QDRANT_REVIEW.md) | High performance, Rust optimization, flexible filtering | High-throughput applications requiring speed | Excellent value at scale |
-| **🧠 Weaviate** | [Complete Analysis →](./databases/WEAVIATE_REVIEW.md) | Modular vectorization, GraphQL API, extensive ML integrations | AI applications requiring flexible data schemas and ML workflows | Schema-based multi-tenancy, scaling complexity |
+| **🧠 Weaviate** | [Complete Analysis →](./databases/WEAVIATE_REVIEW.md) | Modular vectorization, GraphQL API, extensive ML integrations | AI applications requiring flexible data schemas and ML workflows | Tenant-level sharding + lifecycle, scaling complexity |
 | **⚙️ SingleStore** | [Complete Analysis →](./databases/SINGLESTORE_REVIEW.md) | SQL integration, strong consistency (ACID), petabyte-scale, fastest indexing | Enterprise applications requiring SQL compatibility and transactional guarantees | Enterprise pricing, consolidation potential for existing SQL workloads |
 
 ---
